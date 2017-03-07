@@ -27,23 +27,24 @@ class Document(object):
 
 class InvDocument(Document):
         ''' in inverted indexing table: each doc also has the following attrs so info about the indexing term can be easily stored/accessed.
-            these are set during _invert() process when each Document() obj meets Term() obj. '''
-        def __init__(self, idx, filepath, url, token, token_positions, token_tf):
-            ''' this is the best part No.1 of this project:
-            initialize what is defined in InvDocument's super class for the current class InvDocument. '''
-            super(self.__class__, self).__init__(idx, filepath, url)
-            self.token = token
-            self.token_positions = token_positions
-            self.token_tf = token_tf
-            self.token_idf = None
+            these are set during _invert() process when each Document() obj meets Term() obj.
+        '''
+    def __init__(self, idx, filepath, url, token, token_positions, token_tf):
+        ''' this is the best part No.1 of this project:
+        initialize what is defined in InvDocument's super class for the current class InvDocument. '''
+        super(self.__class__, self).__init__(idx, filepath, url)
+        self.token = token
+        self.token_positions = token_positions
+        self.token_tf = token_tf
+        self.token_idf = None
 
-        def set_idf(self, token_df, tot_docs):
-            '''
-            Given token's document frequency and the number of total documents.
-            This function computes the inverted document frequency.
-            '''
-            self.token_idf = math.log10(float(tot_docs) / token_df)
-            return ;
+    def set_idf(self, token_df, tot_docs):
+        '''
+        Given token's document frequency and the number of total documents.
+        This function computes the inverted document frequency.
+        '''
+        self.token_idf = math.log10(float(tot_docs) / token_df)
+        return ;
 
 
 
