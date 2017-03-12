@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Search Results</title>
+</head>
+<body>
+
+	<form action="/search" method="GET">
+		<p align="center"><img src="/static/images/zot.jpg"></p>
+        <p align="center">
+                    {% for i in result %}
+                        <ul>
+                            <li><h3>{{ i.0 }}</h3></a></li>
+                            <a href={{ i.1 }}><h3>{{ i.1 }}</h3></a>
+                            <h4>{{ i.2 }}</h4>
+                        </ul>
+                    {% endfor %}
+        </p>
+	</form>
+</body>
+</html>

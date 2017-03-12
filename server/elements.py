@@ -1,8 +1,6 @@
 '''
 This module defines the element classes used in SearchEngine project
 '''
-
-import pickle
 import math
 
 class Term(object):
@@ -19,24 +17,29 @@ class Term(object):
         self.positions.append(i)
         return ;
 
+
+
 class Document(object):
     def __init__(self, idx, filepath, url):
         self.idx = idx
         self.filepath = filepath
         self.url = url
 
+
 class InvDocument(Document):
-        ''' in inverted indexing table: each doc also has the following attrs so info about the indexing term can be easily stored/accessed.
-            these are set during _invert() process when each Document() obj meets Term() obj.
-        '''
+    ''' in inverted indexing table: each doc also has the following attrs so info about the indexing term can be easily stored/accessed.
+        these are set during _invert() process when each Document() obj meets Term() obj.
+    '''
     def __init__(self, idx, filepath, url, token, token_positions, token_tf):
         ''' this is the best part No.1 of this project:
-        initialize what is defined in InvDocument's super class for the current class InvDocument. '''
+            initialize what is defined in InvDocument's super class for the current class InvDocument.
+        '''
         super(self.__class__, self).__init__(idx, filepath, url)
         self.token = token
         self.token_positions = token_positions
         self.token_tf = token_tf
         self.token_idf = None
+        self.ranking_score = {}
 
     def set_idf(self, token_df, tot_docs):
         '''
@@ -45,9 +48,6 @@ class InvDocument(Document):
         '''
         self.token_idf = math.log10(float(tot_docs) / token_df)
         return ;
-
-
-
 
 
 
@@ -71,27 +71,8 @@ class IdxItemMap(object):
         self._idx += 1
         return idx
 
-
-# class tknItemMap(object):
-#     """
-#     this is to facilitate mapping token process {token: Term}
-#     """
-#     def __init__(self):
-#         self._map = {}
-#
-#     def add_new(self, token, item):
-#         self._map[token] = item
-#         return ;
-#
-#     def has(self, token):
-#         return token in self._map
-#
-#     def remove(self, token):
-#         print "Under dev..."
-#         pass
-#
-#     def get_map(self):
-#         return self._map
+    def get_map(self):
+        return self._map
 
 
 class MapCacher(object):
@@ -108,21 +89,22 @@ class MapCacher(object):
     def get_docMap(self, name = 'main'):
         return self.docMap[name]
 
-    def load(self, filepath, mode = 'pickle'):
-        if mode == 'pickle':
-            with open(filepath, 'rb') as f:
-                return pickle.load(f)
-        elif mode == 'json':
-            raise Exception('Under dev...')
-        else:
-            raise Exception('Error: "mode" can be either "pickle" or "json".')
-
-    def save(self, filepath, mode = 'pickle'):
-        if mode == 'pickle':
-            with open(filepath, 'wb') as f:
-                pickle.dump(self.docMap, f)
-                return ;
-        elif mode == 'json':
-            raise Exception('Under dev...')
-        else:
-            raise Exception('Error: "mode" can be either "pickle" or "json".')
+    ''' pickle the class itself might not be a good idea. '''
+    # def load(self, filepath, mode = 'pickle'):
+    #     if mode == 'pickle':
+    #         with open(filepath, 'rb') as f:
+    #             return pickle.load(f)
+    #     elif mode == 'json':
+    #         raise Exception('Under dev...')
+    #     else:
+    #         raise Exception('Error: "mode" can be either "pickle" or "json".')
+    #
+    # def save(self, filepath, mode = 'pickle'):
+    #     if mode == 'pickle':
+    #         with open(filepath, 'wb') as f:
+    #             pickle.dump(self.docMap, f)
+    #             return ;
+    #     elif mode == 'json':
+    #         raise Exception('Under dev...')
+    #     else:
+    #         raise Exception('Error: "mode" can be either "pickle" or "json".')
