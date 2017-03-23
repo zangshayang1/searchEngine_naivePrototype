@@ -1,9 +1,39 @@
 '''
-This module defines the element classes used in SearchEngine project
+This modules defines:
+    Class:
+        Term() - make each token separated by space or special characters a Term obj
+        Document() - make each page a Document() obj, stores page-specific attributes that remain the same no matter what token it gets invertedly indexed to.
+        InvDocument() - it is built on top of Document() and it has a few additional attributes pertaining to each page candidates in invert indexing process.
+        MapCacher() - an abstract class for mapping and storage
+        URL() - encapsulate url and its relevant information, such as outgoing links, anchor texts
+    Functions:
+            toAbsUrl() - This function defines how the program converts relative url to absolute url,
+                         which is limited to the scope of this project.
 '''
+
+
+
 import math
+from urlparse import urljoin
+
+
+
+def toAbsUrl(root_url, rela_url):
+    ''' The judgement call if the url is relative or absolute is very hard to make. Here one criteria is: if it contains 'ics.uci.edu' then it is absolute.
+        Because the corpus is coming from that domain and its subdomains.
+        Also note: the keys in bookkeeping file doesn't start with 'http://', but outgoing links might. '''
+    if rela_url.startswith('http://'):
+        abs_url = rela_url[7:].encode('ascii', 'ignore') # so if it actually points to some page in the corpus, we can find it.
+    elif 'ics.uci.edu' in rela_url:
+        abs_url = rela_url.encode('ascii', 'ignore')
+    else:
+        rela_url = rela_url.encode('ascii', 'ignore')
+        abs_url = urljoin(root_url, rela_url)
+    return abs_url
+
 
 class Term(object):
+
     def __init__(self, token, tf, init_position):
         self.token = token
         self.tf = tf
@@ -18,22 +48,33 @@ class Term(object):
         return ;
 
 
-
 class Document(object):
-    def __init__(self, idx, filepath, url):
+
+    def __init__(self, idx, filepath, url, hubness = None, authority = None, pagerank = None):
         self.idx = idx
-        self.filepath = filepath
-        self.url = url
+        self.filepath = filepath # abs path
+        self.url = url # abs url
+        self.params = {'hubness': None,
+                        'authority': None,
+                        'pagerank': None}
+
+    def set(self, **kwargs):
+        for k in kwargs:
+            if not k in self.params:
+                raise Exception('Error in Document() class: kwargs are limited as "hubness", "authority", "pagerank".')
+            self.params[k] = kwargs[k]
+        return ;
+
+    def get(self, key):
+        if not key in self.params:
+            raise Exception('Error in Document() class: key is limited as one of the following: "hubness", "authority", "pagerank".')
+        return self.params[key]
 
 
 class InvDocument(Document):
-    ''' in inverted indexing table: each doc also has the following attrs so info about the indexing term can be easily stored/accessed.
-        these are set during _invert() process when each Document() obj meets Term() obj.
-    '''
+
     def __init__(self, idx, filepath, url, token, token_positions, token_tf):
-        ''' this is the best part No.1 of this project:
-            initialize what is defined in InvDocument's super class for the current class InvDocument.
-        '''
+        ''' Highlight.1: inheritance '''
         super(self.__class__, self).__init__(idx, filepath, url)
         self.token = token
         self.token_positions = token_positions
@@ -42,69 +83,82 @@ class InvDocument(Document):
         self.ranking_score = {}
 
     def set_idf(self, token_df, tot_docs):
-        '''
-        Given token's document frequency and the number of total documents.
-        This function computes the inverted document frequency.
-        '''
+        ''' Given token's document frequency and the number of total documents.
+            This function computes the inverted document frequency. '''
         self.token_idf = math.log10(float(tot_docs) / token_df)
         return ;
 
 
-
 class IdxItemMap(object):
-    """
-    this is to facilitate indexing document process {idx: Document}
-    """
-    def __init__(self, start_idx = 0):
+    ''' This class implements an encapsulation of a dictionary data structure,
+        dedicated to making the construction of certain type of mapping relations easy to manage.
+        In the scope of this project:
+            1. Dict<idx, Document>
+            2. Dict<url, idx> '''
+    def __init__(self):
         self._map = {}
-        self._idx = start_idx
+        self._idx = 0
 
-    def add(self, item, idx):
-        self._map[idx] = item
+    def add(self, item, key = None):
+        # if key is not specified, automatically index the item by the current self._idx
+        if key is None:
+            self._map[self._idx] = item
+            self._idx += 1
+        else:
+            self._map[key] = item
         return ;
 
-    def get_item_at(self, idx):
-        return self._map[idx]
+    def has(self, key):
+        if key in self._map:
+            return True
+        else:
+            return False
+
+    def get_item_at(self, key):
+        return self._map[key]
 
     def next_avai_idx(self):
-        idx = self._idx
-        self._idx += 1
-        return idx
+        return self._idx
 
     def get_map(self):
         return self._map
 
+    def iteritems(self):
+        return self._map.iteritems()
+
+
 
 class MapCacher(object):
+    ''' This is a mapping relation manager class that allows users to create multiple dictionaries specified by key
+    '''
     def __init__(self):
         self.docMap = {}
 
-    def init_docMap(self, name = 'main', doc_start_idx = 0):
-        '''
-        after calling this function, a document mapping dictionary and initial doc index are created and associated with the given name within self.docMap
-        '''
-        self.docMap[name] = IdxItemMap(doc_start_idx)
+    def init_docMap(self, key = 'idx'):
+        ''' after calling this function,
+            if key == 'idx':
+                a document mapping dictionary and initial doc index are created and associated with the given key within self.docMap
+            elif key == 'url':
+                a document mapping dictionary is created and associated with the given key within self.docMap '''
+        self.docMap[key] = IdxItemMap()
         return ;
 
-    def get_docMap(self, name = 'main'):
-        return self.docMap[name]
+    def get_docMap(self, key = 'idx'):
+        return self.docMap[key]
 
-    ''' pickle the class itself might not be a good idea. '''
-    # def load(self, filepath, mode = 'pickle'):
-    #     if mode == 'pickle':
-    #         with open(filepath, 'rb') as f:
-    #             return pickle.load(f)
-    #     elif mode == 'json':
-    #         raise Exception('Under dev...')
-    #     else:
-    #         raise Exception('Error: "mode" can be either "pickle" or "json".')
-    #
-    # def save(self, filepath, mode = 'pickle'):
-    #     if mode == 'pickle':
-    #         with open(filepath, 'wb') as f:
-    #             pickle.dump(self.docMap, f)
-    #             return ;
-    #     elif mode == 'json':
-    #         raise Exception('Under dev...')
-    #     else:
-    #         raise Exception('Error: "mode" can be either "pickle" or "json".')
+
+
+
+
+class URL():
+    def __init__(self, url):
+        self.url = url
+        self.outgoing_links = set()
+        self.anchorTokens = set()
+
+    def add(self, anchorTokens = None, outgoing_links = None):
+        if not anchorTokens is None:
+            self.anchorTokens |= anchorTokens
+        if not outgoing_links is None:
+            self.outgoing_links |= outgoing_links
+        return ;
