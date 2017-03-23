@@ -13,30 +13,13 @@ from server import elements
 sys.modules['elements'] = elements
 
 
+bkp_file = config.BOOKKEEPING_FILE
+corpus_dir = config.WORKING_DIR
 
-# from django.shortcuts import render_to_response
-# import os
-# import sys
+invIndex_file = config.INVINDEX_FILE
+pageMap_file = config.PAGEMAP_FILE
 
-# path = r'C:\Users\xiaoyanqu\Documents\GitHub\Search-Engine\app'  # use your own username here
-# if path not in sys.path:
-#     sys.path.append(path)
-
-# os.environ['DJANGO_SETTINGS_MODULE'] = 'app.settings'
-
-# os.environ.setdefault("DJANGO_SETTINGS_MODULE", "settings.py")
-# from app import settings
-# if settings.DEBUG:
-#     print "Setting warning."
-
-
-invIdx_file = '/Users/shayangzang/Desktop/cs211-infoRetrieval/project3/myMetadata/test_invIndex.pkl'
-docIdx_file = '/Users/shayangzang/Desktop/cs211-infoRetrieval/project3/myMetadata/test_docIndex.pkl'
-bookkeeping_file = '/Users/shayangzang/Desktop/cs211-infoRetrieval/project3/myMetadata/bookkeeping.json'
-corpus_dir = '/Users/shayangzang/Desktop/cs211-infoRetrieval/project3/test_WEBPAGES_RAW/'
-pageRank_file = '/Users/shayangzang/Desktop/cs211-infoRetrieval/project3/myMetadata/test_pageRank.pkl'
-
-ranker = Ranker(invIdx_file, docIdx_file, corpus_dir, bookkeeping_file, pageRank_file)
+ranker = Ranker(corpus_dir, bkp_file, invIndex_file, pageMap_file)
 
 app = Flask(__name__)
 

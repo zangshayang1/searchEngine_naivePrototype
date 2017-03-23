@@ -5,6 +5,7 @@ import math
 import time
 from docAnalyzer import DocAnalyzer
 from nltk.tokenize import RegexpTokenizer
+import config
 
 
 
@@ -203,11 +204,11 @@ class Ranker(object):
 
 
 if __name__ == '__main__':
-    bkp_file = '/Users/shayangzang/Desktop/cs211-infoRetrieval/project3/myMetadata/bookkeeping.json'
-    corpus_dir = '/Users/shayangzang/Desktop/cs211-infoRetrieval/project3/test_WEBPAGES_RAW/'
+    bkp_file = config.BOOKKEEPING_FILE
+    corpus_dir = config.WORKING_DIR
 
-    invIndex_file = '/Users/shayangzang/Desktop/cs211-infoRetrieval/project3/myMetadata/test_invIndex.pkl'
-    pageMap_file = '/Users/shayangzang/Desktop/cs211-infoRetrieval/project3/myMetadata/test_pageMap.pkl'
+    invIndex_file = config.INVINDEX_FILE
+    pageMap_file = config.PAGEMAP_FILE
 
     ranker = Ranker(corpus_dir, bkp_file, invIndex_file, pageMap_file)
 

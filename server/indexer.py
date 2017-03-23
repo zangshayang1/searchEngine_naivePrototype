@@ -1,3 +1,4 @@
+import config
 from docAnalyzer import DocAnalyzer
 from nltk.tokenize import RegexpTokenizer
 from utils import PageRank, AuthorityTable
@@ -214,13 +215,13 @@ if __name__ == '__main__':
 	t = time.time()
 
 	''' Input Format: workingDir is a directory containing page.html only. Children dir are allowed. '''
-	workingDir = '/Users/shayangzang/Desktop/cs211-infoRetrieval/project3/test_WEBPAGES_RAW/'
+	workingDir = config.WORKING_DIR
 
 	''' Input Format: bkp_file contains a dictionary -> {relative filepath : absolute url} '''
-	bkp_file = '/Users/shayangzang/Desktop/cs211-infoRetrieval/project3/myMetadata/bookkeeping.json'
+	bkp_file = config.BOOKKEEPING_FILE
 
-	pageMapFile = '/Users/shayangzang/Desktop/cs211-infoRetrieval/project3/myMetadata/test_pageMap.pkl'
-	invIndex = '/Users/shayangzang/Desktop/cs211-infoRetrieval/project3/myMetadata/test_invIndex.pkl'
+	pageMapFile = config.PAGEMAP_FILE
+	invIndex = config.INVINDEX_FILE
 
 	indexer = Indexer(build_invIndex_of = workingDir, bkp_file = bkp_file, title = True, header = True, body = True, anchor = True)
 
