@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request
 from server.ranker import Ranker
+import server.config
 
 '''
 Pickle is the serialization package that goes with Python.
